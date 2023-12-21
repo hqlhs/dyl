@@ -12,7 +12,9 @@ import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RestController;
 
+import javax.servlet.http.HttpServletRequest;
 import java.time.LocalDateTime;
+import java.util.Enumeration;
 import java.util.Optional;
 import java.util.List;
 
@@ -37,8 +39,14 @@ public class CounterController {
    * @return API response json
    */
   @GetMapping(value = "/api/count")
-  ApiResponse get() {
+  ApiResponse get(HttpServletRequest req) {
     logger.info("/api/count get request");
+    Enumeration<String> headers = req.getHeaderNames();
+    while(headers.hasMoreElements()){
+      String key = (String)headers.nextElement();
+      String value = req.getHeader(key);
+      logger.info("/api/count1->"+key+"="+value);
+    }
     Optional<Counter> counter = counterService.getCounter(1);
     Integer count = 0;
     if (counter.isPresent()) {
@@ -55,9 +63,14 @@ public class CounterController {
    * @return API response json
    */
   @PostMapping(value = "/api/count")
-  ApiResponse create(@RequestBody CounterRequest request) {
+  ApiResponse create(@RequestBody CounterRequest request, HttpServletRequest req ) {
     logger.info("/api/count post request, action: {}", request.getAction());
-
+    Enumeration<String> headers = req.getHeaderNames();
+    while(headers.hasMoreElements()){
+      String key = (String)headers.nextElement();
+      String value = req.getHeader(key);
+      logger.info("/api/count2->"+key+"="+value);
+    }
     Optional<Counter> curCounter = counterService.getCounter(1);
     if (request.getAction().equals("inc")) {
       Integer count = 1;
@@ -79,5 +92,5 @@ public class CounterController {
       return ApiResponse.error("参数action错误");
     }
   }
-  
+
 }
